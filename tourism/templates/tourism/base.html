@@ -189,7 +189,7 @@
     <nav class="navbar navbar-expand-lg navbar-light">
         <div class="container">
             <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="{% if user.is_staff or user.is_superuser %}{% url 'admin_dashboard' %}{% else %}{% url 'home' %}{% endif %}">
-                <img src="{% static 'C:\Users\Christine Elaine\Documents\ExploreBil\static\img\logo.png' %}" alt="Explore Biliran" class="mb-0" style="height:90px; width:120px; object-fit:contain;" onerror="this.style.display='none'">
+                <img src="{% static 'img/logo.png' %}" alt="Explore Biliran" class="mb-0" style="height:90px; width:120px; object-fit:contain;" onerror="this.style.display='none'">
                 <span class="text-uppercase" style="letter-spacing:2px; color: var(--brand-dark);">Explore Biliran</span>
             </a>
             <div class="navbar-nav ms-auto d-flex align-items-center">
