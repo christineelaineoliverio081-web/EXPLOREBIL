@@ -195,8 +195,8 @@
             <div class="navbar-nav ms-auto d-flex align-items-center">
                 {% if user.is_staff or user.is_superuser %}
                     {% if request.resolver_match.url_name != 'admin_dashboard' and 'admin' in request.resolver_match.url_name %}
-                        
-                            <i class="fas fa-arrow-left me-1"></i>Back 
+                        <a class="btn btn-outline-secondary me-2" href="{% url 'admin_dashboard' %}">
+                            <i class="fas fa-arrow-left me-1"></i>Back
                         </a>
                     {% elif request.resolver_match.url_name == 'admin_dashboard' %}
                         <a class="btn btn-primary" href="{% url 'home' %}">
