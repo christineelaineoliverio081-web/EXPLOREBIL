@@ -45,7 +45,7 @@
                                 <td>
                                     {% if review.image %}
                                         <div class="admin-image-frame">
-                                            <img src="{{ review.image.url }}" alt="Review image" class="admin-thumbnail">
+                                            <img src="{% static review.image.url %}" alt="Review image" class="admin-thumbnail">
                                         </div>
                                     {% else %}
                                         <div class="admin-image-frame">

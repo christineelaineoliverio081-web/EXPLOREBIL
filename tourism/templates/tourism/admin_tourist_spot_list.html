@@ -47,7 +47,7 @@
                                 <td>
                                     {% if spot.image %}
                                         <div class="admin-image-frame">
-                                            <img src="{{ spot.image.url }}" alt="{{ spot.name }}" class="admin-thumbnail">
+                                            <img src="{% static spot.image.url %}" alt="{{ spot.name }}" class="admin-thumbnail">
                                         </div>
                                     {% else %}
                                         <div class="admin-image-frame">

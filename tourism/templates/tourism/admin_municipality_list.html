@@ -46,7 +46,7 @@
                                 <td>
                                     {% if municipality.image %}
                                         <div class="admin-image-frame">
-                                            <img src="{{ municipality.image.url }}" alt="{{ municipality.name }}" class="admin-thumbnail">
+                                            <img src="{% static municipality.image.url %}" alt="{{ municipality.name }}" class="admin-thumbnail">
                                         </div>
                                     {% else %}
                                         <div class="admin-image-frame">
