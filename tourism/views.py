@@ -183,10 +183,10 @@ def tourist_spot_detail(request, spot_id):
             else:
                 gallery_images.append(extra_image.image.url)
 
-    # Add images from tourist_spot_gallery folder
+    # Add images from img folder (moved from tourist_spot_gallery)
     if 'RENDER' in os.environ:
-        # In production, look in static folder
-        static_dir = os.path.join(settings.BASE_DIR, 'static', 'tourist_spot_gallery')
+        # In production, look in static img folder
+        static_dir = os.path.join(settings.BASE_DIR, 'static', 'img')
     else:
         # In development, look in media folder
         static_dir = os.path.join(settings.MEDIA_ROOT, 'tourist_spot_gallery')
@@ -197,7 +197,7 @@ def tourist_spot_detail(request, spot_id):
             for fname in sorted(os.listdir(static_dir)):
                 if fname.lower().startswith(slug) or tourist_spot.name.lower() in fname.lower():
                     if 'RENDER' in os.environ:
-                        gallery_images.append('tourist_spot_gallery/' + fname)
+                        gallery_images.append('img/' + fname)
                     else:
                         gallery_images.append(settings.MEDIA_URL.rstrip('/') + '/tourist_spot_gallery/' + fname)
                 if len(gallery_images) >= 10:
