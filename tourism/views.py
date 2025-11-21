@@ -169,30 +169,51 @@ def tourist_spot_detail(request, spot_id):
     gallery_images = []
     # Add main image first if exists
     if tourist_spot.image:
-        gallery_images.append(tourist_spot.image.url)
+        if 'RENDER' in os.environ:
+            # In production, use static path
+            gallery_images.append(tourist_spot.image.url.replace('/media/', ''))
+        else:
+            gallery_images.append(tourist_spot.image.url)
+    
     # Add gallery images
     for extra_image in tourist_spot.images.all():
         if extra_image.image:
-            gallery_images.append(extra_image.image.url)
+            if 'RENDER' in os.environ:
+                gallery_images.append(extra_image.image.url.replace('/media/', ''))
+            else:
+                gallery_images.append(extra_image.image.url)
 
-    media_dir = os.path.join(settings.MEDIA_ROOT, 'tourist_spots')
+    # Add images from tourist_spot_gallery folder
+    if 'RENDER' in os.environ:
+        # In production, look in static folder
+        static_dir = os.path.join(settings.BASE_DIR, 'static', 'tourist_spot_gallery')
+    else:
+        # In development, look in media folder
+        static_dir = os.path.join(settings.MEDIA_ROOT, 'tourist_spot_gallery')
+    
     slug = slugify(tourist_spot.name)
-    if os.path.isdir(media_dir):
+    if os.path.isdir(static_dir):
         try:
-            for fname in sorted(os.listdir(media_dir)):
-                if fname.lower().startswith(slug):
-                    gallery_images.append(settings.MEDIA_URL.rstrip('/') + '/tourist_spots/' + fname)
+            for fname in sorted(os.listdir(static_dir)):
+                if fname.lower().startswith(slug) or tourist_spot.name.lower() in fname.lower():
+                    if 'RENDER' in os.environ:
+                        gallery_images.append('tourist_spot_gallery/' + fname)
+                    else:
+                        gallery_images.append(settings.MEDIA_URL.rstrip('/') + '/tourist_spot_gallery/' + fname)
+                if len(gallery_images) >= 10:
+                    break
         except Exception:
             pass
 
+    # Add review images
     for r in reviews:
-        if r.image and r.image.url not in gallery_images:
-            gallery_images.append(r.image.url)
-        if len(gallery_images) >= 5:
+        if r.image:
+            if 'RENDER' in os.environ:
+                gallery_images.append(r.image.url.replace('/media/', ''))
+            else:
+                gallery_images.append(r.image.url)
+        if len(gallery_images) >= 15:
             break
-
-    while len(gallery_images) < 3 and gallery_images:
-        gallery_images.append(gallery_images[-1])
 
     preset_coords = {
         'naval spring resort': (11.5794, 124.3966),
