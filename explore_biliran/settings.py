@@ -126,15 +126,14 @@ STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
 
-# In production, serve media files as static files
+# In production, add media files to static files
 if 'RENDER' in os.environ:
     STATICFILES_DIRS.append(BASE_DIR / 'media')
-    MEDIA_URL = '/static/'
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 else:
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-    MEDIA_URL = '/media/'
 
+MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
