@@ -1,4 +1,6 @@
 {% extends 'tourism/base.html' %}
+{% load static %}
+{% load media_tags %}
 
 {% block title %}{{ tourist_spot.name }} - Explore Biliran{% endblock %}
 
@@ -27,9 +29,9 @@
                         {% for img in gallery_images %}
                         <div class="carousel-item {% if forloop.first %}active{% endif %}" style="padding: 5px;">
                             <div class="tourist-image-frame">
-                                <img src="{{ img }}" class="d-block w-100" alt="{{ tourist_spot.name }} image {{ forloop.counter }}"
+                                <img src="{% media_url img %}" class="d-block w-100" alt="{{ tourist_spot.name }} image {{ forloop.counter }}"
                                      style="max-height: 420px; object-fit: cover; cursor: zoom-in;"
-                                     data-bs-toggle="modal" data-bs-target="#imageModal" data-img="{{ img }}">
+                                     data-bs-toggle="modal" data-bs-target="#imageModal" data-img="{% media_url img %}">
                                 <div class="carousel-caption d-none d-md-block" style="background: rgba(44, 62, 45, 0.8); border-radius: 5px;">
                                     <small>Image {{ forloop.counter }} of {{ gallery_images|length }}</small>
                                 </div>
