@@ -1,0 +1,257 @@
+{% extends 'tourism/base.html' %}
+{% load static %}
+
+{% block title %}Admin Dashboard - Explore Biliran{% endblock %}
+
+{% block content %}
+<style>
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.5);
+        backdrop-filter: blur(3px);
+        z-index: -1;
+    }
+</style>
+<div class="admin-dashboard-container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="mb-4" style="color: var(--brand-dark);">
+                <i class="fas fa-tachometer-alt me-2"></i>Admin Dashboard
+            </h1>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-lg-2 col-md-4 mb-3">
+            <div class="card stats-card" style="background: var(--brand-primary);">
+                <div class="card-body" style="color: var(--brand-cream);">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-1" style="opacity: 0.9; font-size: 0.75rem;">Municipalities</h6>
+                            <h3 class="mb-0 fw-bold">{{ municipalities_count }}</h3>
+                        </div>
+                        <i class="fas fa-city fa-2x" style="opacity: 0.3;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-4 mb-3">
+            <div class="card stats-card" style="background: var(--brand-dark);">
+                <div class="card-body" style="color: var(--brand-cream);">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-1" style="opacity: 0.9; font-size: 0.75rem;">Tourist Spots</h6>
+                            <h3 class="mb-0 fw-bold">{{ tourist_spots_count }}</h3>
+                        </div>
+                        <i class="fas fa-map-marker-alt fa-2x" style="opacity: 0.3;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-4 mb-3">
+            <div class="card stats-card" style="background: var(--brand-accent);">
+                <div class="card-body" style="color: var(--brand-cream);">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-1" style="opacity: 0.9; font-size: 0.75rem;">Reviews</h6>
+                            <h3 class="mb-0 fw-bold">{{ reviews_count }}</h3>
+                        </div>
+                        <i class="fas fa-comments fa-2x" style="opacity: 0.3;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-4 mb-3">
+            <div class="card stats-card" style="background: var(--brand-primary);">
+                <div class="card-body" style="color: var(--brand-cream);">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-1" style="opacity: 0.9; font-size: 0.75rem;">Ratings</h6>
+                            <h3 class="mb-0 fw-bold">{{ ratings_count }}</h3>
+                        </div>
+                        <i class="fas fa-star fa-2x" style="opacity: 0.3;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-4 mb-3">
+            <div class="card stats-card" style="background: var(--brand-accent);">
+                <div class="card-body" style="color: var(--brand-cream);">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-1" style="opacity: 0.9; font-size: 0.75rem;">Users</h6>
+                            <h3 class="mb-0 fw-bold">{{ users_count }}</h3>
+                        </div>
+                        <i class="fas fa-users fa-2x" style="opacity: 0.3;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header" style="background: var(--brand-primary); color: var(--brand-cream);">
+                    <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <h6 class="mb-3" style="color: var(--brand-dark);">Municipality Management</h6>
+                            <a href="{% url 'admin_municipality_list' %}" class="btn btn-primary me-2 mb-2">
+                                <i class="fas fa-list me-2"></i>View All Municipalities
+                            </a>
+                            <a href="{% url 'admin_municipality_add' %}" class="btn btn-success me-2 mb-2">
+                                <i class="fas fa-plus me-2"></i>Add Municipality
+                            </a>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <h6 class="mb-3" style="color: var(--brand-dark);">Tourist Spot Management</h6>
+                            <a href="{% url 'admin_tourist_spot_list' %}" class="btn btn-primary me-2 mb-2">
+                                <i class="fas fa-list me-2"></i>View All Tourist Spots
+                            </a>
+                            <a href="{% url 'admin_tourist_spot_add' %}" class="btn btn-success me-2 mb-2">
+                                <i class="fas fa-plus me-2"></i>Add Tourist Spot
+                            </a>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <h6 class="mb-3" style="color: var(--brand-dark);">Reviews & Users</h6>
+                            <a href="{% url 'admin_reviews_list' %}" class="btn btn-warning me-2 mb-2">
+                                <i class="fas fa-comments me-2"></i>Manage Reviews
+                            </a>
+                            <a href="{% url 'admin_users_list' %}" class="btn btn-info me-2 mb-2">
+                                <i class="fas fa-users me-2"></i>View Users
+                            </a>
+                            <a href="{% url 'admin_images_manage' %}" class="btn btn-secondary me-2 mb-2">
+                                <i class="fas fa-images me-2"></i>Manage Images
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-header" style="background: var(--brand-accent); color: var(--brand-cream);">
+                    <h5 class="mb-0"><i class="fas fa-clock me-2"></i>Recent Tourist Spots</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_spots %}
+                        <div class="list-group list-group-flush">
+                            {% for spot in recent_spots %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1" style="color: var(--brand-dark);">{{ spot.name }}</h6>
+                                    <small style="color: var(--brand-dark); opacity: 0.7;">{{ spot.municipality.name }}</small>
+                                </div>
+                                <a href="{% url 'admin_tourist_spot_edit' spot.id %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="mb-0" style="color: var(--brand-dark);">No tourist spots yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-header" style="background: var(--brand-primary); color: var(--brand-cream);">
+                    <h5 class="mb-0"><i class="fas fa-comments me-2"></i>Recent Reviews</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_reviews %}
+                        <div class="list-group list-group-flush">
+                            {% for review in recent_reviews %}
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1" style="color: var(--brand-dark);">{{ review.user.username }}</h6>
+                                        <p class="mb-1 small" style="color: var(--brand-dark);">{{ review.comment|truncatewords:10 }}</p>
+                                        <small style="color: var(--brand-dark); opacity: 0.7;">{{ review.tourist_spot.name }}</small>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="mb-0" style="color: var(--brand-dark);">No reviews yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-header" style="background: var(--brand-dark); color: var(--brand-cream);">
+                    <h5 class="mb-0"><i class="fas fa-user-plus me-2"></i>Recent Users</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_users %}
+                        <div class="list-group list-group-flush">
+                            {% for user in recent_users %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1" style="color: var(--brand-dark);">{{ user.username }}</h6>
+                                    <small style="color: var(--brand-dark); opacity: 0.7;">{{ user.first_name }} {{ user.last_name }}</small>
+                                </div>
+                                <div>
+                                    {% if user.is_staff %}
+                                        <span class="badge" style="background: var(--brand-primary); color: var(--brand-cream);">Admin</span>
+                                    {% else %}
+                                        <span class="badge" style="background: var(--brand-accent); color: var(--brand-cream);">User</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="mb-0" style="color: var(--brand-dark);">No users yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.admin-dashboard-container {
+    background: rgba(244, 241, 232, 0.3);
+    border-radius: 15px;
+    padding: 30px;
+}
+
+.stats-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: none;
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(44, 62, 45, 0.3);
+}
+
+.card {
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(44, 62, 45, 0.15);
+}
+
+.card-header {
+    border-radius: 12px 12px 0 0 !important;
+}
+</style>
+{% endblock %}
+

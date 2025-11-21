@@ -1,0 +1,464 @@
+{% extends 'tourism/base.html' %}
+{% load static %}
+
+{% block title %}Edit Map - {{ tourist_spot.name }}{% endblock %}
+
+{% block content %}
+<style>
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(73, 155, 238, 0.5);
+        backdrop-filter: blur(3px);
+        z-index: -1;
+    }
+</style>
+<div class="admin-container">
+    <div class="row">
+        <div class="col-12 mb-4">
+            <h1 style="color: #3a5ecbff;">
+                <i class="fas fa-map-marked-alt me-2"></i>Edit Map Location: {{ tourist_spot.name }}
+            </h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-map me-2"></i>Interactive Map
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div id="map" style="height: 500px; width: 100%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Coordinates
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="mapForm">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="latitude" class="form-label">Latitude</label>
+                            <input type="number" step="any" class="form-control" id="latitude" name="latitude" value="{{ map_lat }}" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="longitude" class="form-label">Longitude</label>
+                            <input type="number" step="any" class="form-control" id="longitude" name="longitude" value="{{ map_lng }}" readonly>
+                        </div>
+                        <p class="text-muted small">
+                            <i class="fas fa-mouse-pointer me-1"></i>
+                            Click on the map to set the location, then click "Save Coordinates".
+                        </p>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Save Coordinates
+                            </button>
+                            <a href="{% url 'admin_tourist_spot_edit' tourist_spot.id %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Edit
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            {% if tourist_spot.image %}
+            <div class="card mt-3">
+                <div class="card-body text-center">
+                    <h6 class="card-title">Tourist Spot Image</h6>
+                    <div class="admin-image-frame mx-auto">
+                        <img src="{{ tourist_spot.image.url }}" alt="{{ tourist_spot.name }}" class="admin-thumbnail">
+                    </div>
+                    <p class="text-muted small mt-2">{{ tourist_spot.name }}</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+let map;
+let marker;
+
+// Initialize map
+document.addEventListener('DOMContentLoaded', function() {
+    const lat = parseFloat(document.getElementById('latitude').value) || 11.5853;
+    const lng = parseFloat(document.getElementById('longitude').value) || 124.4750;
+    
+    // Initialize map centered on Biliran
+    map = L.map('map').setView([lat, lng], 12);
+    
+    // --- THIS IS THE MODIFIED SECTION ---
+    // Add standard OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 19,
+    }).addTo(map);
+    // --- END MODIFIED SECTION ---
+    
+    // Create custom colored marker
+    const customIcon = L.divIcon({
+        className: 'custom-marker',
+        html: '<div class="marker-pin"><i class="fas fa-map-marker-alt"></i></div>',
+        iconSize: [30, 42],
+        iconAnchor: [15, 42]
+    });
+    
+    // Add marker with custom icon
+    marker = L.marker([lat, lng], {
+        icon: customIcon,
+        draggable: true,
+        title: '{{ tourist_spot.name }}'
+    }).addTo(map)
+      .bindPopup('<div class="custom-popup"><strong>{{ tourist_spot.name }}</strong><br>{{ tourist_spot.address }}</div>')
+      .openPopup();
+    
+    // Update coordinates when marker is dragged
+    marker.on('dragend', function(e) {
+        const position = marker.getLatLng();
+        document.getElementById('latitude').value = position.lat.toFixed(6);
+        document.getElementById('longitude').value = position.lng.toFixed(6);
+    });
+    
+    // Update coordinates when map is clicked
+    map.on('click', function(e) {
+        const lat = e.latlng.lat;
+        const lng = e.latlng.lng;
+        
+        // Move marker to clicked location
+        marker.setLatLng([lat, lng]);
+        
+        // Update form fields
+        document.getElementById('latitude').value = lat.toFixed(6);
+        document.getElementById('longitude').value = lng.toFixed(6);
+        
+        // Update popup with custom styling
+        marker.bindPopup('<div class="custom-popup"><strong>{{ tourist_spot.name }}</strong><br>New Location: ' + lat.toFixed(6) + ', ' + lng.toFixed(6) + '</div>').openPopup();
+    });
+});
+</script>
+
+<style>
+.admin-container {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    padding: 30px;
+}
+
+#map {
+    border-radius: 0 0 12px 12px;
+    border: 3px solid #3a5ecbff;
+    box-shadow: 0 4px 15px rgba(58, 94, 203, 0.3);
+}
+
+/* Custom marker styling */
+.custom-marker {
+    background: transparent;
+}
+
+.marker-pin {
+    width: 30px;
+    height: 42px;
+    position: relative;
+    background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+    border: 2px solid white;
+}
+
+.marker-pin i {
+    color: white;
+    font-size: 16px;
+    transform: rotate(45deg);
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+
+.marker-pin::after {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: rgba(255,255,255,0.3);
+    border-radius: 50%;
+    top: 6px;
+    left: 6px;
+    transform: rotate(45deg);
+}
+
+/* Custom popup styling */
+.leaflet-popup-content-wrapper {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+}
+
+.leaflet-popup-tip {
+    background: #667eea;
+}
+
+.custom-popup {
+    font-weight: 500;
+    text-align: center;
+    padding: 5px;
+}
+
+.custom-popup strong {
+    color: #fff;
+    font-size: 16px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+/* Map container enhancements */
+.leaflet-container {
+    background: linear-gradient(135deg, #a8e6cf, #88d8c0);
+    border-radius: 8px;
+}
+
+/* Map tile color filter for enhanced vibrancy */
+.leaflet-tile {
+    filter: saturate(1.2) contrast(1.1) brightness(1.05);
+}
+
+/* Card styling enhancements */
+.card {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.card-header {
+    background: linear-gradient(135deg, #3a5ecbff, #2d3436) !important;
+    border: none;
+}
+
+.bg-info {
+    background: linear-gradient(135deg, #00cec9, #00b894) !important;
+}
+
+.admin-image-frame {
+    width: 150px;
+    height: 150px;
+    border: 3px solid var(--brand-primary);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: #f8f9fa;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.admin-thumbnail {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.admin-thumbnail:hover {
+    transform: scale(1.05);
+}
+
+/* Button enhancements */
+.btn-primary {
+    background: linear-gradient(135deg, #3a5ecbff, #2d3436);
+    border: none;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #2d3436, #3a5ecbff);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(58, 94, 203, 0.4);
+}
+
+.btn-outline-secondary {
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+} {
+    font-weight: 400;
+    text-align: left;
+    padding: 8px 4px;
+    line-height: 1.4;
+}
+
+.custom-popup strong {
+    color: #1a73e8;
+    font-size: 14px;
+    font-weight: 500;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.leaflet-popup-close-button {
+    color: #666 !important;
+    font-size: 18px !important;
+    padding: 4px 8px !important;
+}
+
+.leaflet-popup-close-button:hover {
+    color: #333 !important;
+    background: #f5f5f5 !important;
+    border-radius: 4px;
+}
+
+/* Professional map container styling */
+.leaflet-container {
+    background: #f5f5f5;
+    border-radius: 8px;
+    font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Google-like map controls */
+.leaflet-control-zoom {
+    border: none !important;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3) !important;
+    border-radius: 2px !important;
+}
+
+.leaflet-control-zoom a {
+    background: white !important;
+    color: #666 !important;
+    border: none !important;
+    font-size: 18px !important;
+    line-height: 30px !important;
+    width: 30px !important;
+    height: 30px !important;
+    text-align: center !important;
+}
+
+.leaflet-control-zoom a:hover {
+    background: #f5f5f5 !important;
+    color: #333 !important;
+}
+
+.leaflet-control-scale {
+    background: rgba(255,255,255,0.8) !important;
+    border-radius: 2px !important;
+    padding: 2px 5px !important;
+    font-size: 11px !important;
+    color: #666 !important;
+    border: 1px solid rgba(0,0,0,0.1) !important;
+}
+
+/* Fullscreen control styling */
+.leaflet-control-fullscreen {
+    background: white !important;
+    border: none !important;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3) !important;
+    border-radius: 2px !important;
+    width: 30px !important;
+    height: 30px !important;
+}
+
+.leaflet-control-fullscreen a {
+    background: white !important;
+    color: #666 !important;
+    font-size: 16px !important;
+    line-height: 30px !important;
+    text-align: center !important;
+}
+
+.leaflet-control-fullscreen a:hover {
+    background: #f5f5f5 !important;
+    color: #333 !important;
+}
+
+/* Card styling enhancements */
+.card {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.card-header {
+    background: linear-gradient(135deg, #3a5ecbff, #2d3436) !important;
+    border: none;
+}
+
+.bg-info {
+    background: linear-gradient(135deg, #00cec9, #00b894) !important;
+}
+
+.admin-image-frame {
+    width: 150px;
+    height: 150px;
+    border: 3px solid var(--brand-primary);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: #f8f9fa;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.admin-thumbnail {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.admin-thumbnail:hover {
+    transform: scale(1.05);
+}
+
+/* Button enhancements */
+.btn-primary {
+    background: linear-gradient(135deg, #3a5ecbff, #2d3436);
+    border: none;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #2d3436, #3a5ecbff);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(58, 94, 203, 0.4);
+}
+
+.btn-outline-secondary {
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+</style>
+{% endblock %}
+

@@ -1,0 +1,112 @@
+{% extends 'tourism/base.html' %}
+
+{% block title %}{{ municipality.name }} - Explore Biliran{% endblock %}
+
+{% block content %}
+
+
+<div class="hero-section text-center mb-5">
+    <h1 class="display-5 fw-bold mb-3" style="color: #2c3e2d;">{{ municipality.name }}</h1>
+    <p class="lead">{{ municipality.description }}</p>
+    <a href="{% url 'home' %}" class="btn btn-primary">
+        <i class="fas fa-arrow-left me-2"></i>Back to Home
+    </a>
+</div>
+
+{% if municipality.image %}
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card">
+            <img src="{{ municipality.image.url }}" class="card-img-top" alt="{{ municipality.name }}" style="max-height: 400px; object-fit: cover;">
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="row">
+    <div class="col-12">
+        <h2 class="mb-4" style="color: #2c3e2d;">
+            <i class="fas fa-map-marker-alt me-2"></i>Tourist Spots in {{ municipality.name }}
+        </h2>
+    </div>
+    
+    {% if tourist_spots %}
+        {% for spot in tourist_spots %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100">
+                {% if spot.image %}
+                    <div class="tourist-image-frame" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#imageModal{{ spot.id }}">
+                        <img src="{{ spot.image.url }}" class="card-img-top" alt="{{ spot.name }}" style="height: 200px; object-fit: cover;">
+                    </div>
+                {% else %}
+                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center tourist-image-frame" style="height: 200px;">
+                        <i class="fas fa-image fa-3x text-muted"></i>
+                    </div>
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ spot.name }}</h5>
+                    <p class="card-text">{{ spot.description|truncatewords:20 }}</p>
+                    <p class="card-text">
+                        <small class="text-muted">
+                            <i class="fas fa-map-marker-alt me-1"></i>{{ spot.address }}
+                        </small>
+                    </p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="text-warning">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= spot.average_rating %}
+                                    <i class="fas fa-star"></i>
+                                {% else %}
+                                    <i class="far fa-star"></i>
+                                {% endif %}
+                            {% endfor %}
+                            <small class="text-muted ms-1">({{ spot.average_rating|floatformat:1 }})</small>
+                        </div>
+                        <a href="{% url 'tourist_spot_detail' spot.id %}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-info-circle me-1"></i>View Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-map fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No tourist spots found in {{ municipality.name }} yet.</h5>
+                    <p class="text-muted">Check back later for updates!</p>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Image Modals -->
+{% for spot in tourist_spots %}
+<div class="modal fade" id="imageModal{{ spot.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ spot.name }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0">
+                {% if spot.image %}
+                    <img src="{{ spot.image.url }}" class="img-fluid w-100" alt="{{ spot.name }}">
+                {% else %}
+                    <div class="bg-light d-flex align-items-center justify-content-center" style="height: 400px;">
+                        <div class="text-center">
+                            <i class="fas fa-image fa-4x text-muted mb-3"></i>
+                            <p class="text-muted">No image available for {{ spot.name }}</p>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% endblock %}

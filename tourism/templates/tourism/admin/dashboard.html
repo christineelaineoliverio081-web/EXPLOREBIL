@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center text-primary">Admin Dashboard</h1>
+    <hr>
+    <p class="text-center">Welcome to your Explore Biliran Admin Dashboard!</p>
+
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card shadow p-3 text-center">
+                <h3>Municipalities</h3>
+                <p>Manage and update municipality information.</p>
+                <a href="{% url 'admin_municipality_list' %}" class="btn btn-primary">Go</a>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow p-3 text-center">
+                <h3>Tourist Spots</h3>
+                <p>View and edit tourist spot details.</p>
+                <a href="{% url 'admin_tourist_spot_list' %}" class="btn btn-success">Go</a>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow p-3 text-center">
+                <h3>Logout</h3>
+                <p>Exit the admin dashboard.</p>
+                <a href="{% url 'logout' %}" class="btn btn-danger">Logout</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,159 @@
+{% extends 'tourism/base.html' %}
+
+{% block title %}Home - Explore Biliran{% endblock %}
+
+{% block content %}
+
+<!-- Logo and Ads Corner Dropdown -->
+<div class="d-flex justify-content-start mb-3">
+    <div class="dropdown">
+        <button class="btn btn-primary dropdown-toggle" type="button" id="logoAdsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-image me-2"></i>Logo and Ads Corner
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="logoAdsDropdown">
+            <li><a class="dropdown-item" href="{% url 'logo_page' %}"><i class="fas fa-star me-2"></i>Logo</a></li>
+            <li><a class="dropdown-item" href="{% url 'poster_page' %}"><i class="fas fa-image me-2"></i>Poster</a></li>
+            <li><a class="dropdown-item" href="{% url 'advertisement_page' %}"><i class="fas fa-play me-2"></i>Advertisement</a></li>
+        </ul>
+    </div>
+</div>
+
+<div class="hero-section text-center" style="background: transparent; border: 0;">
+    <h1 class="display-1 fw-bold mb-5" style="--brand-dark: #2c3e2d;">Adventure Awaits</h1>
+</div>
+
+<!-- Admin Login Section -->
+{% if not user.is_authenticated %}
+<div class="row justify-content-end mb-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title text-center mb-3">
+                    <i class="fas fa-user-shield me-2"></i>Admin Access
+                </h5>
+                <form method="post" action="{% url 'login' %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <input type="text" class="form-control" name="username" placeholder="Username" required>
+                    </div>
+                    <div class="mb-3">
+                        <input type="password" class="form-control" name="password" placeholder="Password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-sign-in-alt me-2"></i>Login to Admin
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Search Bar -->
+<div class="search-bar mb-5">
+    <form method="get" action="{% url 'search_results' %}">
+        <div class="input-group">
+            <input type="text" class="form-control" name="q" placeholder="Search Municipalities" value="{{ search_query }}">
+            <button class="btn btn-primary" type="submit">
+                <i class="fas fa-search"></i> Search
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Municipalities Section -->
+<div class="mb-5">
+    <div class="col-12">
+        <h2 class="mb-4 text-center" style="color: #2c3e2d;">
+            <i class="fas fa-map-marker-alt me-2"></i>Explore Municipalities
+        </h2>
+    </div>
+    
+    <!-- Municipalities List -->
+    {% for municipality in municipalities %}
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="municipality-card">
+                    <div class="row align-items-center">
+                        <div class="col-md-3">
+                            {% if municipality.image %}
+                                <img src="{{ municipality.image.url }}" alt="{{ municipality.name }}" class="img-fluid rounded" style="max-height: 150px; width: 100%; object-fit: cover;">
+                            {% else %}
+                                <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 150px;">
+                                    {% if municipality.name == 'Naval' %}
+                                        <img src="https://biliran.gov.ph/wp-content/uploads/2024/11/Municipality-of-Naval-300x300.png" alt="{{ municipality.name }}" class="mb-0" style="height:160px; width:150px; object-fit:contain;" onerror="this.style.display='none'">
+                                    {% elif municipality.name == 'Almeria' %}
+                                        <img src="https://biliran.gov.ph/wp-content/uploads/2024/11/Municipality-of-Almeria-Logo.png" alt="{{ municipality.name }}" class="mb-0" style="height:160px; width:160px; object-fit:contain;" onerror="this.style.display='none'">
+                                    {% elif municipality.name == 'Kawayan' %}
+                                        <img src="https://kawayanbiliran.gov.ph/wp-content/uploads/2022/03/site_icon.png" alt="{{ municipality.name }}" class="mb-0" style="height:160px; width:150px; object-fit:contain;" onerror="this.style.display='none'">
+                                    {% elif municipality.name == 'Maripipi' %}
+                                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRSQ0R828DZ8eDwDDM_asYi4ukvGhgD7-dP2g&s" alt="{{ municipality.name }}" class="mb-0" style="height:160px; width:150px; object-fit:contain;" onerror="this.style.display='none'">
+                                    {% else %}
+                                        <i class="fas fa-map-marker-alt fa-3x text-muted"></i>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <h4 class="fw-bold text-primary">{{ municipality.name }}</h4>
+                            <p class="text-muted">{{ municipality.description|truncatewords:15 }}</p>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <a href="{% url 'municipality_detail' municipality.id %}" class="btn btn-primary">
+                                <i class="fas fa-eye me-2"></i>Explore {{ municipality.name }}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+<!-- Featured Tourist Spots -->
+{% if tourist_spots %}
+<div class="row">
+    <div class="col-12">
+        <h2 class="text-white mb-4 text-center">
+            <i class="fas fa-star me-2"></i>Featured Tourist Spots
+        </h2>
+    </div>
+    
+    {% for spot in tourist_spots %}
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card h-100">
+            {% if spot.image %}
+                <div class="tourist-image-frame">
+                    <img src="{{ spot.image.url }}" class="card-img-top" alt="{{ spot.name }}" style="height: 200px; object-fit: cover;">
+                </div>
+            {% else %}
+                <div class="card-img-top bg-light d-flex align-items-center justify-content-center tourist-image-frame" style="height: 200px;">
+                    <i class="fas fa-image fa-3x text-muted"></i>
+                </div>
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">{{ spot.name }}</h5>
+                <p class="card-text text-muted">{{ spot.municipality.name }}</p>
+                <p class="card-text">{{ spot.description|truncatewords:15 }}</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="text-warning">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= spot.average_rating %}
+                                <i class="fas fa-star"></i>
+                            {% else %}
+                                <i class="far fa-star"></i>
+                            {% endif %}
+                        {% endfor %}
+                        <small class="text-muted ms-1">({{ spot.average_rating|floatformat:1 }})</small>
+                    </div>
+                    <a href="{% url 'tourist_spot_detail' spot.id %}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-info-circle me-1"></i>Details
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

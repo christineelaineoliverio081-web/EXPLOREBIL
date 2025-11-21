@@ -1,0 +1,116 @@
+{% extends 'tourism/base.html' %}
+{% load static %}
+
+{% block title %}Municipalities Management - Admin{% endblock %}
+
+{% block content %}
+<style>
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.5);
+        backdrop-filter: blur(3px);
+        z-index: -1;
+    }
+</style>
+<div class="admin-container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 style="color: #2c3e2d;">
+            <i class="fas fa-city me-2"></i>Municipalities Management
+        </h1>
+        <a href="{% url 'admin_municipality_add' %}" class="btn btn-success">
+            <i class="fas fa-plus me-2"></i>Add Municipality
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            {% if municipalities %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-primary">
+                            <tr>
+                                <th>Image</th>
+                                <th>Name</th>
+                                <th>Description</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for municipality in municipalities %}
+                            <tr>
+                                <td>
+                                    {% if municipality.image %}
+                                        <div class="admin-image-frame">
+                                            <img src="{{ municipality.image.url }}" alt="{{ municipality.name }}" class="admin-thumbnail">
+                                        </div>
+                                    {% else %}
+                                        <div class="admin-image-frame">
+                                            <i class="fas fa-image text-muted"></i>
+                                        </div>
+                                    {% endif %}
+                                </td>
+                                <td><strong>{{ municipality.name }}</strong></td>
+                                <td>{{ municipality.description|truncatewords:20 }}</td>
+                                <td>
+                                    <a href="{% url 'admin_municipality_edit' municipality.id %}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-edit me-1"></i>Edit
+                                    </a>
+                                    <a href="{% url 'admin_municipality_delete' municipality.id %}" class="btn btn-sm btn-danger">
+                                        <i class="fas fa-trash me-1"></i>Delete
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-city fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">No municipalities found. <a href="{% url 'admin_municipality_add' %}">Add one now!</a></p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="mt-3">
+        </a>
+    </div>
+</div>
+
+<style>
+.admin-container {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    padding: 30px;
+}
+
+.admin-image-frame {
+    width: 80px;
+    height: 80px;
+    border: 3px solid var(--brand-primary);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: #f8f9fa;
+}
+
+.admin-thumbnail {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.table {
+    margin-bottom: 0;
+}
+</style>
+{% endblock %}
+

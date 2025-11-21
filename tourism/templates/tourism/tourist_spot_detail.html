@@ -1,0 +1,317 @@
+{% extends 'tourism/base.html' %}
+
+{% block title %}{{ tourist_spot.name }} - Explore Biliran{% endblock %}
+
+{% block content %}
+
+
+<div class="hero-section text-center mb-5">
+    <h1 class="display-5 fw-bold mb-3" style="color: #2c3e2d;">{{ tourist_spot.name }}</h1>
+    <p class="lead">{{ tourist_spot.municipality.name }}</p>
+    <a href="{% url 'municipality_detail' tourist_spot.municipality.id %}" class="btn btn-primary">
+        <i class="fas fa-arrow-left me-2"></i>Back to {{ tourist_spot.municipality.name }}
+    </a>
+</div>
+
+<div class="row mb-5">
+    <div class="col-md-8">
+        <!-- Image Gallery -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center" style="background-color: #2c3e2d; color: white;">
+                <h6 class="mb-0"><i class="fas fa-images me-2"></i>Photo Gallery ({{ gallery_images|length }} images)</h6>
+
+            </div>
+            <div id="spotCarousel" class="carousel slide" data-bs-ride="false">
+                <div class="carousel-inner">
+                    {% if gallery_images %}
+                        {% for img in gallery_images %}
+                        <div class="carousel-item {% if forloop.first %}active{% endif %}" style="padding: 5px;">
+                            <div class="tourist-image-frame">
+                                <img src="{{ img }}" class="d-block w-100" alt="{{ tourist_spot.name }} image {{ forloop.counter }}"
+                                     style="max-height: 420px; object-fit: cover; cursor: zoom-in;"
+                                     data-bs-toggle="modal" data-bs-target="#imageModal" data-img="{{ img }}">
+                                <div class="carousel-caption d-none d-md-block" style="background: rgba(44, 62, 45, 0.8); border-radius: 5px;">
+                                    <small>Image {{ forloop.counter }} of {{ gallery_images|length }}</small>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="carousel-item active">
+                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 420px;">
+                                <div class="text-center">
+                                    <i class="fas fa-image fa-3x text-muted mb-2"></i>
+                                    <p class="text-muted">No images available</p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+                {% if gallery_images|length > 1 %}
+                <button class="carousel-control-prev" type="button" data-bs-target="#spotCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#spotCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+                <!-- Carousel indicators -->
+                <div class="carousel-indicators">
+                    {% for img in gallery_images %}
+                    <button type="button" data-bs-target="#spotCarousel" data-bs-slide-to="{{ forloop.counter0 }}" 
+                            {% if forloop.first %}class="active"{% endif %} aria-label="Slide {{ forloop.counter }}"></button>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            
+
+        </div>
+
+        <!-- Fullscreen modal for images -->
+        <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-xl">
+                <div class="modal-content" style="background: transparent; border: none;">
+                    <div class="modal-header border-0">
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-0">
+                        <img id="modalImg" src="" alt="Full view" style="width:100%; height:auto; border-radius:6px;"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Side Info Column -->
+    <div class="col-md-4">
+        <!-- Quick Info -->
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Quick Info</h5>
+                <p class="card-text">
+                    <i class="fas fa-map-marker-alt text-primary me-2"></i>
+                    <strong>Location:</strong> {{ tourist_spot.address }}
+                </p>
+                <p class="card-text">
+                    <i class="fas fa-star text-warning me-2"></i>
+                    <strong>Average Rating:</strong>
+                    <span data-average-rating>{{ tourist_spot.average_rating|floatformat:1 }}</span>/5.0
+                </p>
+                <p class="card-text">
+                    <i class="fas fa-comments text-info me-2"></i>
+                    <strong>Reviews:</strong> {{ tourist_spot.reviews.count }}
+                </p>
+            </div>
+        </div>
+
+        <!-- Map -->
+        <div class="card mt-3">
+            <div class="dark blue">
+                <h6 class="card-title mb-2">
+                    <i class="fas fa-map me-2"></i>Map of Tourist Spots in {{ tourist_spot.municipality.name }}
+                </h6>
+                <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+                <div id="map" style="height:300px; border-radius: 8px; border: 2px solid #2c3e2d; box-shadow: 0 4px 12px rgba(44, 62, 45, 0.3);"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Description -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Description</h5>
+                <p class="card-text">{{ tourist_spot.description }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Rating & Review -->
+<div class="row">
+    <div class="col-md-8 mx-auto mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title text-center mb-4">
+                    <i class="fas fa-star text-warning me-2"></i>Rate & Review this place
+                </h5>
+                
+                <form method="post" class="mb-4" id="ratingForm">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ rating_form.rating.id_for_label }}" class="form-label">
+                                    <i class="fas fa-star text-warning me-1"></i>Your Rating
+                                </label>
+                                {{ rating_form.rating }}
+                            </div>
+                        </div>
+                        <div class="col-md-6 d-flex align-items-end">
+                            <button type="submit" name="submit_rating" class="btn btn-warning w-100" id="ratingSubmitBtn">
+                                <i class="fas fa-star me-2"></i>Submit Rating
+                            </button>
+                        </div>
+                    </div>
+                </form>
+                
+                <hr>
+                
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="{{ review_form.comment.id_for_label }}" class="form-label">
+                            <i class="fas fa-comment text-info me-1"></i>Write a Review
+                        </label>
+                        {{ review_form.comment }}
+                    </div>
+                    <div class="mb-3">
+                        <label for="{{ review_form.image.id_for_label }}" class="form-label">
+                            <i class="fas fa-image text-success me-1"></i>Upload Photo (Optional)
+                        </label>
+                        {{ review_form.image }}
+                    </div>
+                    <div class="text-center">
+                        <button type="submit" name="review" class="btn btn-info">
+                            <i class="fas fa-paper-plane me-2"></i>Post Review
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reviews -->
+<div class="row">
+    <div class="col-12">
+        <h3 class="mb-4" style="color: #2c3e2d;">
+            <i class="fas fa-comments me-2"></i>Reviews & Comments
+        </h3>
+        
+        {% if reviews %}
+            {% for review in reviews %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-1">{{ review.user.get_full_name|default:review.user.username }}</h6>
+                    <small class="text-muted">{{ review.created_at|date:"F j, Y" }}</small>
+                    <p class="card-text mt-2">{{ review.comment }}</p>
+                    {% if review.image %}
+                        <div class="tourist-image-frame mt-2" style="display: inline-block; max-width: 100%;">
+                            <img src="{{ review.image.url }}" class="img-fluid rounded" style="max-height: 200px; width: 100%;">
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No reviews yet.</h5>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Image Modal Script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle image modal
+    const imageModal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('modalImg');
+    
+    imageModal.addEventListener('show.bs.modal', function(event) {
+        const button = event.relatedTarget;
+        const imgSrc = button.getAttribute('data-img');
+        modalImg.src = imgSrc;
+    });
+});
+</script>
+
+<!-- Leaflet Map Script -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const currentLat = {{ map_lat|default:11.5853 }};
+    const currentLng = {{ map_lng|default:124.4750 }};
+    const map = L.map('map').setView([currentLat, currentLng], 14);
+
+    // Use OpenStreetMap with place names
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 19
+    }).addTo(map);
+
+    const currentMarker = L.marker([currentLat, currentLng]).addTo(map);
+    currentMarker.bindPopup(`<b style="color:#2c3e2d;">{{ tourist_spot.name|escapejs }}</b><br>{{ tourist_spot.address|escapejs }}`).openPopup();
+
+    const spots = [
+        {% for spot in all_spots_in_municipality %}
+        {
+            name: "{{ spot.name|escapejs }}",
+            lat: {{ spot.latitude|default:0 }},
+            lng: {{ spot.longitude|default:0 }},
+            address: "{{ spot.address|escapejs }}",
+            url: "{% url 'tourist_spot_detail' spot.id %}"
+        },
+        {% endfor %}
+    ];
+
+    spots.forEach(spot => {
+        if (spot.lat && spot.lng) {
+            const marker = L.marker([spot.lat, spot.lng]).addTo(map);
+            marker.bindPopup(`<b><a href="${spot.url}" style="text-decoration:none; color:#2c3e2d;">${spot.name}</a></b><br>${spot.address}`);
+        }
+    });
+
+    setTimeout(() => map.invalidateSize(), 500);
+});
+</script>
+
+<style>
+/* Enhanced map styling with navy green theme */
+.leaflet-container {
+    background: #f4f1e8;
+    border-radius: 8px;
+}
+
+/* Custom popup styling with navy green theme */
+.leaflet-popup-content-wrapper {
+    background: linear-gradient(135deg, #2c3e2d 0%, #4a6b4c 100%);
+    color: #f4f1e8;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(44, 62, 45, 0.4);
+}
+
+.leaflet-popup-tip {
+    background: #2c3e2d;
+}
+
+.leaflet-popup-content {
+    margin: 8px 12px;
+    font-weight: 500;
+    color: #f4f1e8;
+}
+
+.leaflet-popup-content a {
+    color: #f4f1e8 !important;
+    text-decoration: none;
+}
+
+.leaflet-popup-content a:hover {
+    text-decoration: underline;
+}
+
+.leaflet-popup-close-button {
+    color: #f4f1e8 !important;
+}
+</style>
+
+{% endblock %}
+
