@@ -126,9 +126,9 @@
     {% for spot in tourist_spots %}
     <div class="col-md-6 col-lg-4 mb-4">
         <div class="card h-100">
-            {% if spot.image %}
+            {% if spot.image_url %}
                 <div class="tourist-image-frame">
-                    <img src="{% static spot.image.url %}" class="card-img-top" alt="{{ spot.name }}" style="height: 200px; object-fit: cover;">
+                    <img src="{% static spot.image_url %}" class="card-img-top" alt="{{ spot.name }}" style="height: 200px; object-fit: cover;">
                 </div>
             {% else %}
                 <div class="card-img-top bg-light d-flex align-items-center justify-content-center tourist-image-frame" style="height: 200px;">

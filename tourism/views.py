@@ -102,6 +102,15 @@ def home_view(request):
     else:
         tourist_spots = TouristSpot.objects.all()[:6]
     
+    # Fix image URLs for production
+    for spot in tourist_spots:
+        if spot.image and 'RENDER' in os.environ:
+            spot.image_url = spot.image.url.replace('/media/', '')
+        elif spot.image:
+            spot.image_url = spot.image.url
+        else:
+            spot.image_url = None
+    
     context = {
         'municipalities': municipalities,
         'tourist_spots': tourist_spots,
@@ -114,6 +123,15 @@ def home_view(request):
 def municipality_detail(request, municipality_id):
     municipality = get_object_or_404(Municipality, id=municipality_id)
     tourist_spots = municipality.tourist_spots.all()
+    
+    # Fix image URLs for production
+    for spot in tourist_spots:
+        if spot.image and 'RENDER' in os.environ:
+            spot.image_url = spot.image.url.replace('/media/', '')
+        elif spot.image:
+            spot.image_url = spot.image.url
+        else:
+            spot.image_url = None
     
     context = {
         'municipality': municipality,
@@ -264,6 +282,15 @@ def search_results(request):
         )
     else:
         tourist_spots = TouristSpot.objects.all()
+    
+    # Fix image URLs for production
+    for spot in tourist_spots:
+        if spot.image and 'RENDER' in os.environ:
+            spot.image_url = spot.image.url.replace('/media/', '')
+        elif spot.image:
+            spot.image_url = spot.image.url
+        else:
+            spot.image_url = None
     
     context = {'tourist_spots': tourist_spots, 'query': query}
     return render(request, 'tourism/search_results.html', context)
