@@ -3,6 +3,7 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from tourism import views
+import os
 
 urlpatterns = [
     # Main site pages
@@ -27,6 +28,7 @@ urlpatterns = [
     path('django-admin/', admin.site.urls),
 ]
 
-# Serve media files during development
-if settings.DEBUG:
+# Serve media files during development and production
+if settings.DEBUG or 'RENDER' in os.environ:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
