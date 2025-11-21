@@ -28,7 +28,7 @@ urlpatterns = [
     path('django-admin/', admin.site.urls),
 ]
 
-# Serve media files during development and production
-if settings.DEBUG or 'RENDER' in os.environ:
+# Serve media files during development
+if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
