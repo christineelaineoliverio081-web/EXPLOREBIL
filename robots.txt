@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://explorebil.onrender.com/sitemap.xml

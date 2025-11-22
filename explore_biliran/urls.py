@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.http import HttpResponse
 from tourism import views
 import os
 
@@ -26,6 +27,13 @@ urlpatterns = [
     
     # Django admin
     path('django-admin/', admin.site.urls),
+    
+    # Google verification
+    path('google18d2f562bfaf95b9.html', lambda r: HttpResponse('google-site-verification: google18d2f562bfaf95b9.html', content_type='text/html')),
+    
+    # SEO files
+    path('sitemap.xml', lambda r: HttpResponse(open('sitemap.xml').read(), content_type='application/xml')),
+    path('robots.txt', lambda r: HttpResponse(open('robots.txt').read(), content_type='text/plain')),
 ]
 
 # Serve media files during development
